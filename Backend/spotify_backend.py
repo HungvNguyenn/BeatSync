@@ -1,4 +1,6 @@
 from flask import Flask, jsonify
+from dotenv import load_dotenv
+import os
 import requests
 import base64
 from flask_cors import CORS
@@ -7,8 +9,9 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-CLIENT_ID = "6e8637f6a0234421b80956f9444e0379"
-CLIENT_SECRET = "94336921108648fda6f674d5afddcd21"
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
 
 ACCESS_TOKEN = None
 TOKEN_EXPIRES_AT = 0
