@@ -6,8 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Falling_Blocks.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/menu.unity
+    guid: 80e103710ac5625479e29dca1fd483e0
+  - enabled: 1
+    path: Assets/Scenes/Game_Scene.unity
+    guid: 41b11f1aa64de614a93e17c31532a7d8
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fa17926bfa06029488a44b02d4172f90,
       type: 2}
