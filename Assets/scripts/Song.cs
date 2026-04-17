@@ -5,4 +5,5 @@ public class Song
 {
     public string songName;
     public AudioClip clip;
+    public TextAsset beatJson;
 }

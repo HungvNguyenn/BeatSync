@@ -1,41 +1,72 @@
 import librosa
 import json
 import os
+import numpy as np
+from scipy.ndimage import uniform_filter1d
 
-# Resolve audio folder
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_FOLDER = os.path.join(SCRIPT_DIR, "..", "Assets", "Audio")
 AUDIO_FOLDER = os.path.normpath(AUDIO_FOLDER)
 
 def analyze_song(file_path):
     y, sr = librosa.load(file_path)
-    
-    # Beat detection
+
+    # -------------------
+    # BEATS
+    # -------------------
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-    if hasattr(tempo, "__iter__"):
-        tempo = float(tempo[0])
-    else:
-        tempo = float(tempo)
+    tempo = float(tempo[0] if hasattr(tempo, "__iter__") else tempo)
     beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-    
-    # Energy (RMS)
-    rmse = librosa.feature.rms(y=y)[0]  # RMS returns a 2D array
-    rmse_times = librosa.frames_to_time(range(len(rmse)), sr=sr)
-    
-    # Map each beat to nearest energy value
+
+    # -------------------
+    # ENERGY (RMS)
+    # -------------------
+    rmse = librosa.feature.rms(y=y)[0]
+    times = librosa.frames_to_time(range(len(rmse)), sr=sr)
+
+    # Smooth energy (VERY important for hold detection)
+    smooth_energy = uniform_filter1d(rmse, size=10)
+
+    # -------------------
+    # BEAT ENERGY (your current system)
+    # -------------------
     beat_energy = []
     for b in beat_times:
-        idx = (abs(rmse_times - b)).argmin()  # closest energy sample to beat
+        idx = np.abs(times - b).argmin()
         beat_energy.append(float(rmse[idx]))
+
+    # -------------------
+    # HOLD / SUSTAINED SEGMENTS
+    # -------------------
+    HOLD_THRESHOLD = np.mean(smooth_energy) * 1.2
+
+    hold_segments = []
+    start = None
+
+    for i in range(len(smooth_energy)):
+        if smooth_energy[i] > HOLD_THRESHOLD:
+            if start is None:
+                start = times[i]
+        else:
+            if start is not None:
+                end = times[i]
+                if end - start > 0.6:  # duration requirement
+                    hold_segments.append({
+                        "start": float(start),
+                        "end": float(end)
+                    })
+                start = None
 
     return {
         "bpm": tempo,
         "beats": beat_times.tolist(),
-        "energy": beat_energy
+        "energy": beat_energy,
+        "holds": hold_segments
     }
 
 def process_folder(folder):
     print(f"Looking for audio in: {folder}")
+
     if not os.path.exists(folder):
         print("Error: folder does not exist!")
         return

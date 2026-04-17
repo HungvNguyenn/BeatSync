@@ -1,22 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class orbActive : MonoBehaviour
 {
     private XRSimpleInteractable interactable;
+    private OrbLifetime lifetime;
+
+    private bool hit = false;
 
     void Awake()
     {
         interactable = GetComponent<XRSimpleInteractable>();
-        interactable.selectEntered.AddListener(OnActivate);
+        lifetime = GetComponent<OrbLifetime>();
+
+        interactable.selectEntered.AddListener(OnHit);
     }
 
-    void OnActivate(SelectEnterEventArgs args)
+    void OnHit(SelectEnterEventArgs args)
     {
-        Debug.Log("Orb Activate");
+        if (hit) return;
+        hit = true;
+
+        lifetime.Hit();
         Destroy(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        interactable.selectEntered.RemoveListener(OnHit);
     }
 }

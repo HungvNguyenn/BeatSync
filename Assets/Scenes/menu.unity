@@ -1191,6 +1191,7 @@ MonoBehaviour:
   currentSong:
     songName: 
     clip: {fileID: 0}
+    beatJson: {fileID: 0}
 --- !u!4 &1138062292
 Transform:
   m_ObjectHideFlags: 0
@@ -1427,8 +1428,10 @@ MonoBehaviour:
   songs:
   - songName: test 1
     clip: {fileID: 8300000, guid: b1758f6021fe1174ea57660cca678aca, type: 3}
+    beatJson: {fileID: 4900000, guid: 28a5ee20b0a45bb4b97a0c312138ceb7, type: 3}
   - songName: test 2
     clip: {fileID: 8300000, guid: ee3d1daca208ad841bc8611c67966f82, type: 3}
+    beatJson: {fileID: 4900000, guid: 600029257f75420408cb97b6e15a9930, type: 3}
 --- !u!4 &1548937662
 Transform:
   m_ObjectHideFlags: 0

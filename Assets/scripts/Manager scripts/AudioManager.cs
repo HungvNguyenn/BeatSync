@@ -6,6 +6,11 @@ public class AudioManager : MonoBehaviour
     public AudioSource audioSource;
     private Coroutine previewLoopCoroutine;
 
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
     // Play a preview segment and loop it properly
     public void PlaySongPreviewLoop(AudioClip clip, float previewLength = 20f, float startTime = 0f)
     {
@@ -48,23 +53,28 @@ public class AudioManager : MonoBehaviour
     }
 
     // Play the full song and call a callback when finished
-    public void PlaySongWithCallback(AudioClip clip, System.Action onFinished)
+    public void PlaySongWithCallback(AudioClip clip, System.Action onFinished, Song song, RhythmManager rhythmManager)
     {
         if (clip == null) return;
 
         StopCurrentPreview();
 
-        StartCoroutine(PlaySongCoroutine(clip, onFinished));
+        StartCoroutine(PlaySongCoroutine(clip, onFinished, song, rhythmManager));
     }
 
-    private IEnumerator PlaySongCoroutine(AudioClip clip, System.Action onFinished)
+    private IEnumerator PlaySongCoroutine(AudioClip clip, System.Action onFinished, Song song, RhythmManager rhythmManager)
     {
         audioSource.clip = clip;
         audioSource.time = 0f;
         audioSource.Play();
 
+        // START RHYTHM SYSTEM HERE
+        rhythmManager.StartSong(song);
+
         while (audioSource.isPlaying)
             yield return null;
+
+        rhythmManager.StopSong();
 
         onFinished?.Invoke();
     }

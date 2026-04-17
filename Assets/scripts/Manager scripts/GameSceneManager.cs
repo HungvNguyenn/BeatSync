@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Collections; // Needed for IEnumerator
+using System.Collections;
 
 public class GameSceneManager : MonoBehaviour
 {
     private AudioManager audioManager;
-    public TMP_Text countdownText; // assign in inspector
-    public int menuSceneIndex = 1; // assign your menu scene index
+
+    public RhythmManager rhythmManager;
+
+    public TMP_Text countdownText;
+
+    public int menuSceneIndex = 1;
 
     void Start()
     {
@@ -15,10 +19,8 @@ public class GameSceneManager : MonoBehaviour
 
         if (GameManager.instance != null && GameManager.instance.currentSong != null)
         {
-            // Stop any preview from the menu
             audioManager.StopCurrentPreview();
 
-            // Start countdown and play the song
             StartCoroutine(StartSongCountdown(GameManager.instance.currentSong));
         }
         else
@@ -29,7 +31,7 @@ public class GameSceneManager : MonoBehaviour
 
     private IEnumerator StartSongCountdown(Song song)
     {
-        // Countdown 3 → 2 → 1 → GO!
+        // Countdown: 3 → 2 → 1 → GO
         for (int i = 3; i > 0; i--)
         {
             countdownText.text = i.ToString();
@@ -40,11 +42,16 @@ public class GameSceneManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         countdownText.text = "";
 
-        // Play the full song once and return to menu when done
-        audioManager.PlaySongWithCallback(song.clip, () =>
-        {
-            // Return to menu scene
-            SceneManager.LoadScene(menuSceneIndex);
-        });
+        // Play song + start rhythm system
+        audioManager.PlaySongWithCallback(
+            song.clip,
+            () =>
+            {
+                // Song finished → return to menu
+                SceneManager.LoadScene(menuSceneIndex);
+            },
+            song,
+            rhythmManager
+        );
     }
 }
