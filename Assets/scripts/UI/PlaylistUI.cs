@@ -6,7 +6,7 @@ public class PlaylistUI : MonoBehaviour
 {
     public Transform contentParent;       // ScrollView -> Viewport -> Content
     public GameObject songItemPrefab;     // Button prefab
-    public playlistManager playlistManager;
+    public PlaylistManager playlistManager;
 
     private AudioManager audioManager;
     private GameObject currentPlayingItem;

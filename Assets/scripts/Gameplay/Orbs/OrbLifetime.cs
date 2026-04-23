@@ -3,6 +3,7 @@ using UnityEngine;
 public class OrbLifetime : MonoBehaviour
 {
     public float lifetime = 5f;
+    public string missMessage = "Miss";
 
     private float spawnTime;
     private bool active = true;
@@ -22,6 +23,12 @@ public class OrbLifetime : MonoBehaviour
         }
     }
 
+    public void SetRemainingLifetime(float seconds)
+    {
+        lifetime = Mathf.Max(0.01f, seconds);
+        spawnTime = Time.time;
+    }
+
     public void Hit()
     {
         if (!active) return;
@@ -30,12 +37,17 @@ public class OrbLifetime : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void ForceMiss()
+    {
+        Miss();
+    }
+
     void Miss()
     {
         if (!active) return;
 
         active = false;
-        Debug.Log("Miss");
+        Debug.Log(missMessage);
         Destroy(gameObject);
     }
 }

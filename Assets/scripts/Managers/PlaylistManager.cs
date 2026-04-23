@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class playlistManager : MonoBehaviour
+public class PlaylistManager : MonoBehaviour
 {
     public Song[] songs;
 }

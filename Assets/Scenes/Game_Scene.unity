@@ -394,6 +394,7 @@ GameObject:
   - component: {fileID: 628256465}
   - component: {fileID: 628256464}
   - component: {fileID: 628256463}
+  - component: {fileID: 628256466}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -485,6 +486,25 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &628256466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628256461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7951c64acb0fa62458bf30a60089fe2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 0
+  m_CheckFor2DOcclusion: 0
+  m_CheckFor3DOcclusion: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RaycastTriggerInteraction: 1
 --- !u!1 &680648393
 GameObject:
   m_ObjectHideFlags: 0
@@ -494,8 +514,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 680648395}
-  - component: {fileID: 680648394}
   - component: {fileID: 680648396}
+  - component: {fileID: 680648397}
   m_Layer: 0
   m_Name: SpawnerAnchor
   m_TagString: Untagged
@@ -503,23 +523,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &680648394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 680648393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ee9d31b7615d604f8bae31bbfd49267, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tapOrbPrefab: {fileID: 7275113749653851684, guid: 70ce897936f8e064498de1ec8bd9605b,
-    type: 3}
-  slideOrbPrefab: {fileID: 9064468142258899814, guid: 3db789404761cc34298fcf05137de4be,
-    type: 3}
-  spawnAnchor: {fileID: 680648395}
 --- !u!4 &680648395
 Transform:
   m_ObjectHideFlags: 0
@@ -548,8 +551,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1811536126}
-  distanceForward: 2.5
-  heightOffset: 2
+  distanceForward: 4
+  heightOffset: 1
+--- !u!114 &680648397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680648393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ee9d31b7615d604f8bae31bbfd49267, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tapOrbPrefab: {fileID: 7275113749653851684, guid: 70ce897936f8e064498de1ec8bd9605b,
+    type: 3}
+  slideOrbPrefab: {fileID: 9064468142258899814, guid: 3db789404761cc34298fcf05137de4be,
+    type: 3}
+  spawnAnchor: {fileID: 680648395}
 --- !u!1001 &708391260
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1114,7 +1134,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioManager: {fileID: 261047974}
-  orbSpawner: {fileID: 680648394}
+  orbSpawner: {fileID: 680648397}
+  spawnDelaySeconds: 0.5
 --- !u!4 &1573711524
 Transform:
   m_ObjectHideFlags: 0

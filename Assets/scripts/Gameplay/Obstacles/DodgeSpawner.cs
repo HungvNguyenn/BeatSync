@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class dodgeSpawner : MonoBehaviour
+public class DodgeSpawner : MonoBehaviour
 {
     public GameObject obstaclePrefab;
 

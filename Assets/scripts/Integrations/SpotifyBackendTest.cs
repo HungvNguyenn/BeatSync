@@ -1,7 +1,7 @@
 // Example usage
 using UnityEngine;
 
-public class Test : MonoBehaviour
+public class SpotifyBackendTest : MonoBehaviour
 {
     public SpotifyBackend backend;
 

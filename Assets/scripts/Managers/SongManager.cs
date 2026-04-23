@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SongManager : MonoBehaviour
 {
-    public playlistManager playlistManager; // reference to the song list
+    public PlaylistManager playlistManager; // reference to the song list
     private AudioManager audioManager;
 
     void Awake()
