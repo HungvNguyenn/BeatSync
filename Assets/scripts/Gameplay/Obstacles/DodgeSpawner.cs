@@ -30,7 +30,15 @@ public class DodgeSpawner : MonoBehaviour
             forward * spawnDistance +
             Vector3.up * dodgeHeight;
 
-        GameObject obstacle = Instantiate(obstaclePrefab, spawnPos, Quaternion.LookRotation(forward));
+        Quaternion obstacleRotation = Quaternion.LookRotation(forward) * Quaternion.Euler(0f, 90f, 0f);
+        GameObject obstacle = Instantiate(obstaclePrefab);
+
+        Vector3 obstacleScale = obstacle.transform.localScale;
+        obstacle.transform.localScale = new Vector3(
+            Mathf.Abs(obstacleScale.x),
+            Mathf.Abs(obstacleScale.y),
+            Mathf.Abs(obstacleScale.z));
+        obstacle.transform.SetPositionAndRotation(spawnPos, obstacleRotation);
 
         if (obstacle.TryGetComponent(out Obstacle obstacleComponent))
             obstacleComponent.Initialize(-forward);
