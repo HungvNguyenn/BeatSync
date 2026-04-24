@@ -5,6 +5,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class SlideOrb : MonoBehaviour
 {
+    public static event System.Action<SlideOrb> SlideResolved;
+
     private OrbLifetime lifetime;
     private XRGrabInteractable grabInteractable;
     private MeshRenderer meshRenderer;
@@ -25,6 +27,7 @@ public class SlideOrb : MonoBehaviour
     private float travelElapsed = 0f;
     private float draggedProgress = 0f;
     private float grabDistanceOffset = 0f;
+    private bool resolveNotified = false;
 
     void Awake()
     {
@@ -69,6 +72,7 @@ public class SlideOrb : MonoBehaviour
         grabDistanceOffset = 0f;
         started = false;
         completed = false;
+        resolveNotified = false;
         activeInteractor = null;
         activeTrackingTransform = null;
         endGoalCollider = visual != null && visual.endMarker != null ? visual.endMarker.GetComponent<Collider>() : null;
@@ -107,6 +111,7 @@ public class SlideOrb : MonoBehaviour
 
         if (travelElapsed >= requiredHoldDuration && lifetime != null)
         {
+            NotifyResolved();
             ReleaseGrabSelection();
             lifetime.ForceMiss();
         }
@@ -140,7 +145,10 @@ public class SlideOrb : MonoBehaviour
         activeTrackingTransform = null;
 
         if (shouldMiss && lifetime != null)
+        {
+            NotifyResolved();
             lifetime.ForceMiss();
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -153,6 +161,7 @@ public class SlideOrb : MonoBehaviour
 
         completed = true;
         Debug.Log("Slider Hit");
+        NotifyResolved();
         ReleaseGrabSelection();
 
         if (grabInteractable != null)
@@ -169,6 +178,15 @@ public class SlideOrb : MonoBehaviour
 
         activeInteractor = null;
         activeTrackingTransform = null;
+    }
+
+    void NotifyResolved()
+    {
+        if (resolveNotified)
+            return;
+
+        resolveNotified = true;
+        SlideResolved?.Invoke(this);
     }
 
     Transform GetActiveTrackingTransform()
@@ -188,6 +206,8 @@ public class SlideOrb : MonoBehaviour
 
     void OnDestroy()
     {
+        NotifyResolved();
+
         if (grabInteractable == null)
             return;
 

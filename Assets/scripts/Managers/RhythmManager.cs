@@ -22,13 +22,27 @@ public class RhythmManager : MonoBehaviour
 
     public AudioManager audioManager;
     public OrbSpawner orbSpawner;
+    public DodgeSpawner dodgeSpawner;
     [Min(0f)] public float spawnDelaySeconds = 0.25f;
+    [Min(0)] public int dodgeBeatInterval = 8;
 
     private BeatData data;
     private int beatIndex = 0;
     private int slideIndex = 0;
     private bool isPlaying = false;
+    private bool activeSlideHold = false;
+    private float activeSlideEndTime = float.NegativeInfinity;
     private float lastSpawnedBeatTime = float.NegativeInfinity;
+
+    void OnEnable()
+    {
+        SlideOrb.SlideResolved += HandleSlideResolved;
+    }
+
+    void OnDisable()
+    {
+        SlideOrb.SlideResolved -= HandleSlideResolved;
+    }
 
     void Update()
     {
@@ -41,20 +55,29 @@ public class RhythmManager : MonoBehaviour
         {
             var hold = data.holds[slideIndex];
             orbSpawner.SpawnSlide(hold.start, hold.end);
+            activeSlideHold = true;
+            activeSlideEndTime = hold.end;
             slideIndex++;
         }
+
+        if (activeSlideHold && songTime >= activeSlideEndTime)
+            activeSlideHold = false;
 
         while (beatIndex < data.beats.Count && songTime >= data.beats[beatIndex])
         {
             float beatTime = data.beats[beatIndex];
+            bool isInsideHold = IsBeatInsideActiveHold(beatTime);
 
-            if (!IsBeatInsideHold(beatTime) && beatTime - lastSpawnedBeatTime >= spawnDelaySeconds)
+            if (!isInsideHold && beatTime - lastSpawnedBeatTime >= spawnDelaySeconds)
             {
                 orbSpawner.SpawnOrb(
                     GetEnergyForBeat(beatIndex),
                     GetTargetForBeat(beatIndex));
                 lastSpawnedBeatTime = beatTime;
             }
+
+            if (!isInsideHold && ShouldSpawnDodge(beatIndex))
+                SpawnNextDodge();
 
             beatIndex++;
         }
@@ -65,6 +88,8 @@ public class RhythmManager : MonoBehaviour
         data = JsonUtility.FromJson<BeatData>(song.beatJson.text);
         beatIndex = 0;
         slideIndex = 0;
+        activeSlideHold = false;
+        activeSlideEndTime = float.NegativeInfinity;
         lastSpawnedBeatTime = float.NegativeInfinity;
         isPlaying = true;
     }
@@ -74,8 +99,32 @@ public class RhythmManager : MonoBehaviour
         isPlaying = false;
         beatIndex = 0;
         slideIndex = 0;
+        activeSlideHold = false;
+        activeSlideEndTime = float.NegativeInfinity;
         lastSpawnedBeatTime = float.NegativeInfinity;
         data = null;
+    }
+
+    void HandleSlideResolved(SlideOrb _)
+    {
+        activeSlideHold = false;
+        activeSlideEndTime = float.NegativeInfinity;
+    }
+
+    bool ShouldSpawnDodge(int currentBeatIndex)
+    {
+        return dodgeSpawner != null &&
+               dodgeBeatInterval > 0 &&
+               currentBeatIndex > 0 &&
+               currentBeatIndex % dodgeBeatInterval == 0;
+    }
+
+    void SpawnNextDodge()
+    {
+        if (dodgeSpawner == null)
+            return;
+
+        dodgeSpawner.SpawnFrontDodge();
     }
 
     int GetHoldCount()
@@ -83,20 +132,12 @@ public class RhythmManager : MonoBehaviour
         return data.holds != null ? data.holds.Count : 0;
     }
 
-    bool IsBeatInsideHold(float beatTime)
+    bool IsBeatInsideActiveHold(float beatTime)
     {
-        if (data.holds == null)
+        if (!activeSlideHold)
             return false;
 
-        for (int i = 0; i < data.holds.Count; i++)
-        {
-            var hold = data.holds[i];
-
-            if (beatTime >= hold.start && beatTime <= hold.end)
-                return true;
-        }
-
-        return false;
+        return beatTime <= activeSlideEndTime;
     }
 
     float GetEnergyForBeat(int index)

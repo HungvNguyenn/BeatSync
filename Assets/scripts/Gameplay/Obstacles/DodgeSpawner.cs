@@ -1,38 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 public class DodgeSpawner : MonoBehaviour
 {
     public GameObject obstaclePrefab;
-
+    public Transform spawnAnchor;
     public float spawnDistance = 5f;
-    public float spawnRate = 2.5f;
-    public float horizontalRange = 2f;
+    public float dodgeHeight = 1.2f;
 
-    float timer;
-
-    // Update is called once per frame
-    void Update()
+    public void SpawnFrontDodge()
     {
-        timer += Time.deltaTime;
-
-        if (timer >= spawnRate)
-        {
-            SpawnObstacle();
-            timer = 0f;
-        }
+        SpawnObstacle();
     }
 
     void SpawnObstacle()
     {
-        Vector3 spawnPos = new Vector3(
-            Random.Range(-horizontalRange, horizontalRange),
-            1.5f,
-            spawnDistance
-            );
+        if (obstaclePrefab == null || spawnAnchor == null)
+            return;
 
-        Instantiate(obstaclePrefab, spawnPos, Quaternion.identity );
+        Vector3 forward = spawnAnchor.forward;
+        forward.y = 0f;
+
+        if (forward.sqrMagnitude < 0.001f)
+            forward = Vector3.forward;
+        else
+            forward.Normalize();
+
+        Vector3 spawnPos =
+            spawnAnchor.position +
+            forward * spawnDistance +
+            Vector3.up * dodgeHeight;
+
+        GameObject obstacle = Instantiate(obstaclePrefab, spawnPos, Quaternion.LookRotation(forward));
+
+        if (obstacle.TryGetComponent(out Obstacle obstacleComponent))
+            obstacleComponent.Initialize(-forward);
     }
 }

@@ -1,30 +1,59 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
     public float speed = 3f;
-    public float destroyAt = -2f;
+    public float maxTravelDistance = 10f;
 
-    // Update is called once per frame
+    Vector3 moveDirection = Vector3.back;
+    Vector3 spawnPosition;
+
+    void Awake()
+    {
+        spawnPosition = transform.position;
+    }
+
+    public void Initialize(Vector3 direction)
+    {
+        moveDirection = direction.sqrMagnitude > 0.001f ? direction.normalized : Vector3.back;
+        spawnPosition = transform.position;
+    }
+
     void Update()
     {
-        transform.Translate(Vector3.back * speed * Time.deltaTime);
+        transform.position += moveDirection * speed * Time.deltaTime;
 
-        if (transform.position.z < destroyAt)
-        {
+        if (Vector3.Distance(spawnPosition, transform.position) >= maxTravelDistance)
             Destroy(gameObject);
-        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (IsPlayerCollision(other))
         {
-            Debug.Log("Player Hit!");
+            Debug.Log("Wall Hit");
             Destroy(gameObject);
         }
+    }
+
+    bool IsPlayerCollision(Collider other)
+    {
+        if (other == null)
+            return false;
+
+        if (other.CompareTag("Player"))
+            return true;
+
+        Transform current = other.transform;
+
+        while (current != null)
+        {
+            if (current.CompareTag("Player"))
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
     }
 }

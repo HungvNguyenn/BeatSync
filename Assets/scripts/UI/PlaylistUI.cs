@@ -10,7 +10,8 @@ public class PlaylistUI : MonoBehaviour
 
     private AudioManager audioManager;
     private GameObject currentPlayingItem;
-    Color highlightColor = new Color(0.529f, 0.808f, 0.980f);
+    readonly Color defaultColor = new Color(0.035f, 0.118f, 0.157f, 0.82f);
+    readonly Color highlightColor = new Color(0.063f, 0.353f, 0.431f, 0.95f);
 
     void Start()
     {
@@ -25,6 +26,10 @@ public class PlaylistUI : MonoBehaviour
 
             RectTransform rt = item.GetComponent<RectTransform>();
             rt.localScale = Vector3.one;
+
+            Image image = item.GetComponent<Image>();
+            if (image != null)
+                image.color = defaultColor;
 
             Button button = item.GetComponent<Button>();
             if (button != null)
@@ -48,7 +53,7 @@ public class PlaylistUI : MonoBehaviour
     void HighlightPlaying(GameObject item)
     {
         if (currentPlayingItem != null)
-            currentPlayingItem.GetComponent<Image>().color = Color.clear;
+            currentPlayingItem.GetComponent<Image>().color = defaultColor;
 
         currentPlayingItem = item;
         currentPlayingItem.GetComponent<Image>().color = highlightColor;
