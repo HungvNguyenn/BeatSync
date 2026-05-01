@@ -15,6 +15,7 @@ public class SlideOrb : MonoBehaviour
     private Collider endGoalCollider;
     private IXRSelectInteractor activeInteractor;
     private Transform activeTrackingTransform;
+    private HandMovementTracker activeMovementTracker;
 
     private bool started = false;
     private bool completed = false;
@@ -75,6 +76,7 @@ public class SlideOrb : MonoBehaviour
         resolveNotified = false;
         activeInteractor = null;
         activeTrackingTransform = null;
+        activeMovementTracker = null;
         endGoalCollider = visual != null && visual.endMarker != null ? visual.endMarker.GetComponent<Collider>() : null;
 
         if (grabInteractable != null)
@@ -121,6 +123,7 @@ public class SlideOrb : MonoBehaviour
     {
         activeInteractor = args.interactorObject;
         activeTrackingTransform = GetActiveTrackingTransform();
+        activeMovementTracker = GetActiveMovementTracker();
 
         if (activeTrackingTransform == null)
             return;
@@ -134,6 +137,9 @@ public class SlideOrb : MonoBehaviour
         float interactorDistance = Vector3.Dot(activeTrackingTransform.position - startPosition, pathDirection);
         grabDistanceOffset = currentDistance - interactorDistance;
 
+        if (activeMovementTracker != null)
+            activeMovementTracker.BeginSlideTracking();
+
         if (lifetime != null)
             lifetime.SetRemainingLifetime(requiredHoldDuration + completionGraceSeconds);
     }
@@ -141,8 +147,10 @@ public class SlideOrb : MonoBehaviour
     void OnGrabEnded(SelectExitEventArgs args)
     {
         bool shouldMiss = started && !completed;
+        LogSlideMovement();
         activeInteractor = null;
         activeTrackingTransform = null;
+        activeMovementTracker = null;
 
         if (shouldMiss && lifetime != null)
         {
@@ -160,6 +168,7 @@ public class SlideOrb : MonoBehaviour
             return;
 
         completed = true;
+        LogSlideMovement();
         Debug.Log("Slider Hit");
         NotifyResolved();
         ReleaseGrabSelection();
@@ -178,6 +187,7 @@ public class SlideOrb : MonoBehaviour
 
         activeInteractor = null;
         activeTrackingTransform = null;
+        activeMovementTracker = null;
     }
 
     void NotifyResolved()
@@ -202,6 +212,27 @@ public class SlideOrb : MonoBehaviour
 
         activeTrackingTransform = activeInteractor.GetAttachTransform(grabInteractable);
         return activeTrackingTransform;
+    }
+
+    HandMovementTracker GetActiveMovementTracker()
+    {
+        if (activeInteractor is not Component interactorComponent)
+            return null;
+
+        HandMovementTracker tracker = interactorComponent.GetComponentInParent<HandMovementTracker>();
+        if (tracker == null)
+            tracker = interactorComponent.GetComponentInChildren<HandMovementTracker>();
+
+        return tracker;
+    }
+
+    void LogSlideMovement()
+    {
+        if (activeMovementTracker == null)
+            return;
+
+        HandMovementType movement = activeMovementTracker.EndSlideTracking(out Vector3 localDelta, out float distance);
+        Debug.Log($"Slider arm movement: {movement} | local delta {localDelta} | distance {distance:F2}");
     }
 
     void OnDestroy()

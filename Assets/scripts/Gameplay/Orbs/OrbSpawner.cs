@@ -46,13 +46,29 @@ public class OrbSpawner : MonoBehaviour
         forward.y = 0f;
         forward.Normalize();
         Vector3 right = Vector3.Cross(Vector3.up, forward);
+        bool useVerticalPath = Random.value < 0.5f;
+        float axisSign = Random.value < 0.5f ? -1f : 1f;
 
-        Vector3 centerPos =
-            spawnAnchor.position +
-            Vector3.up * SlideSpawnHeight;
-        Vector3 axisDirection = right.normalized * (Random.value < 0.5f ? -1f : 1f);
-        Vector3 startPos = centerPos - axisDirection * (slidePathLength * 0.5f);
-        Vector3 endPos = centerPos + axisDirection * (slidePathLength * 0.5f);
+        Vector3 centerPos;
+        Vector3 axisDirection;
+        float halfPathLength;
+
+        if (useVerticalPath)
+        {
+            float laneSpan = UpLaneHeight - DownLaneHeight;
+            halfPathLength = Mathf.Min(slidePathLength * 0.5f, laneSpan * 0.5f);
+            centerPos = spawnAnchor.position + Vector3.up * ((UpLaneHeight + DownLaneHeight) * 0.5f);
+            axisDirection = Vector3.up * axisSign;
+        }
+        else
+        {
+            halfPathLength = slidePathLength * 0.5f;
+            centerPos = spawnAnchor.position + Vector3.up * SlideSpawnHeight;
+            axisDirection = right.normalized * axisSign;
+        }
+
+        Vector3 startPos = centerPos - axisDirection * halfPathLength;
+        Vector3 endPos = centerPos + axisDirection * halfPathLength;
 
         GameObject slide = Instantiate(slideOrbPrefab, startPos, Quaternion.identity);
 
@@ -88,6 +104,23 @@ public class OrbSpawner : MonoBehaviour
             return;
 
         if (orb.TryGetComponent(out OrbData orbData))
-            orbData.Set(InteractionType.Tap, energy);
+            orbData.Set(InteractionType.Tap, energy, GetExpectedMovement(target));
+    }
+
+    HandMovementType GetExpectedMovement(string target)
+    {
+        switch ((target ?? "Center").Trim().ToLowerInvariant())
+        {
+            case "left":
+                return HandMovementType.Left;
+            case "right":
+                return HandMovementType.Right;
+            case "up":
+                return HandMovementType.Up;
+            case "down":
+                return HandMovementType.Down;
+            default:
+                return HandMovementType.Unknown;
+        }
     }
 }
