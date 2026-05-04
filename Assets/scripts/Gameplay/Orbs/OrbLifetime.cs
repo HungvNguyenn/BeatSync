@@ -47,6 +47,7 @@ public class OrbLifetime : MonoBehaviour
         if (!active) return;
 
         active = false;
+        GameSceneManager.instance?.RegisterMiss();
         Debug.Log(missMessage);
         Destroy(gameObject);
     }

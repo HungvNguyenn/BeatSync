@@ -6,6 +6,7 @@ public class orbActive : MonoBehaviour
 {
     private XRSimpleInteractable interactable;
     private OrbLifetime lifetime;
+    private OrbData orbData;
 
     private bool hit = false;
 
@@ -13,6 +14,7 @@ public class orbActive : MonoBehaviour
     {
         interactable = GetComponent<XRSimpleInteractable>();
         lifetime = GetComponent<OrbLifetime>();
+        orbData = GetComponent<OrbData>();
 
         interactable.selectEntered.AddListener(OnHit);
     }
@@ -44,11 +46,15 @@ public class orbActive : MonoBehaviour
         }
 
         HandMovementType measuredMovement = tracker.RecognizeTapMovement(out Vector3 localDelta, out float distance);
+        GameSceneManager.instance?.RegisterTapResult(
+            orbData != null ? orbData.expectedMovement : HandMovementType.Unknown,
+            measuredMovement);
         Debug.Log($"Tap movement recognized: {measuredMovement} | local delta {localDelta} | distance {distance:F2}");
     }
 
     void OnDestroy()
     {
-        interactable.selectEntered.RemoveListener(OnHit);
+        if (interactable != null)
+            interactable.selectEntered.RemoveListener(OnHit);
     }
 }

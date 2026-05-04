@@ -140,6 +140,8 @@ public class SlideOrb : MonoBehaviour
         if (activeMovementTracker != null)
             activeMovementTracker.BeginSlideTracking();
 
+        GameSceneManager.instance?.RegisterSliderCheckpoint();
+
         if (lifetime != null)
             lifetime.SetRemainingLifetime(requiredHoldDuration + completionGraceSeconds);
     }
@@ -175,6 +177,8 @@ public class SlideOrb : MonoBehaviour
 
         if (grabInteractable != null)
             grabInteractable.enabled = false;
+
+        GameSceneManager.instance?.RegisterSliderCheckpoint();
 
         if (lifetime != null)
             lifetime.Hit();
