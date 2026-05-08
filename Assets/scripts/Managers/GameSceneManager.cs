@@ -12,6 +12,10 @@ public class GameSceneManager : MonoBehaviour
     public TMP_Text countdownText;
     public int menuSceneIndex = 1;
 
+    [Header("Boundary UI")]
+    public TMP_Text boundaryText;
+    public string boundaryWarningMessage = "Return to the stage";
+
     [Header("Combo UI")]
     public TMP_Text comboText;
     public float comboDisplaySeconds = 0.9f;
@@ -46,6 +50,7 @@ public class GameSceneManager : MonoBehaviour
         audioManager = FindObjectOfType<AudioManager>();
         EnsureComboText();
         EnsureFeedbackText();
+        EnsureBoundaryText();
         EnsureResultsText();
         ResetRunStats();
 
@@ -92,6 +97,18 @@ public class GameSceneManager : MonoBehaviour
         ShowFeedbackMessage("Miss");
     }
 
+    public void ShowBoundaryWarning()
+    {
+        if (boundaryText != null)
+            boundaryText.text = boundaryWarningMessage;
+    }
+
+    public void HideBoundaryWarning()
+    {
+        if (boundaryText != null)
+            boundaryText.text = string.Empty;
+    }
+
     public void BreakCombo()
     {
         if (comboCount > 0)
@@ -124,6 +141,9 @@ public class GameSceneManager : MonoBehaviour
 
         if (feedbackText != null)
             feedbackText.text = string.Empty;
+
+        if (boundaryText != null)
+            boundaryText.text = string.Empty;
 
         if (resultsText != null)
             resultsText.text = string.Empty;
@@ -217,6 +237,8 @@ public class GameSceneManager : MonoBehaviour
         if (feedbackText != null)
             feedbackText.text = string.Empty;
 
+        HideBoundaryWarning();
+
         if (resultsText != null)
         {
             resultsText.text =
@@ -283,6 +305,35 @@ public class GameSceneManager : MonoBehaviour
         createdText.alignment = TextAlignmentOptions.Left;
 
         feedbackText = createdText;
+    }
+
+    void EnsureBoundaryText()
+    {
+        if (boundaryText != null || countdownText == null)
+            return;
+
+        Canvas parentCanvas = countdownText.canvas;
+        if (parentCanvas == null)
+            return;
+
+        GameObject boundaryObject = new GameObject("Boundary Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        boundaryObject.transform.SetParent(parentCanvas.transform, false);
+
+        RectTransform rectTransform = boundaryObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(0.5f, 0.8f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.8f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = Vector2.zero;
+        rectTransform.sizeDelta = new Vector2(520f, 90f);
+
+        TextMeshProUGUI createdText = boundaryObject.GetComponent<TextMeshProUGUI>();
+        createdText.text = string.Empty;
+        createdText.font = countdownText.font;
+        createdText.fontSize = 30f;
+        createdText.color = countdownText.color;
+        createdText.alignment = TextAlignmentOptions.Center;
+
+        boundaryText = createdText;
     }
 
     void EnsureResultsText()
